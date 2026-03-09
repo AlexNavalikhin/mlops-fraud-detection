@@ -4,3 +4,7 @@
 
 **Задача:** бинарная классификация мошеннических банковских транзакций (`Is_Fraud`).  
 **Датасет:** [Bank Transaction Fraud Detection — LOL Bank Pvt. Ltd.](https://www.kaggle.com/datasets/marusagar/bank-transaction-fraud-detection/data)
+
+---
+
+Далее будет обновляться 
