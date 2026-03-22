@@ -1,0 +1,10 @@
+abrakadabra/
+data/raw/
+data/raw_source/
+models/
+reports/
+logs/
+.venv/
+__pycache__/
+*.pkl
+*.pyc

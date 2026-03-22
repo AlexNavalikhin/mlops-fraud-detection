@@ -7,4 +7,25 @@
 
 ---
 
-Далее будет обновляться 
+## Команды
+```bash
+# Обучить на одном батче
+python run.py -mode "update"
+
+# Обучить на всех батчах сразу
+python run.py -mode "update" -all
+
+# Сбросить и начать заново
+python run.py -mode "reset"
+
+# Применить модель к новым данным
+python run.py -mode "inference" -file "./path_to_file.csv"
+
+# Отчёт о работе системы
+python run.py -mode "summary"
+```
+
+## Тесты
+```bash
+python run_tests.py
+```

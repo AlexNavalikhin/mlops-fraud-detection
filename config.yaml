@@ -1,0 +1,46 @@
+data:
+  source_path: "data/raw_source/bank_transactions.csv"
+  raw_dir: "data/raw"
+  date_column: "Transaction_Date"
+  batch_size: 1000
+  missing_threshold: 0.30
+
+quality:
+  report_dir: "reports/quality"
+  max_missing_pct: 30.0
+  max_duplicates_pct: 5.0
+  max_fraud_rate: 50.0
+
+apriori:
+  report_dir: "reports/apriori"
+  min_support: 0.05
+  min_confidence: 0.3
+  min_lift: 1.0
+  n_rules: 10
+
+eda:
+  report_dir: "reports/eda"
+
+drift:
+  report_dir: "reports/drift"
+  threshold: 0.2
+
+preprocessor:
+  save_dir: "models/preprocessor"
+  num_strategy: "standard"    # standard / minmax
+  cat_strategy: "ordinal"     # ordinal / onehot
+
+trainer:
+  save_dir: "models/trainer"
+  batch_size: 20
+  rf_n_estimators: 100
+  rf_max_depth: 10
+  mlp_layers: [64, 32]
+
+validator:
+  save_dir: "models/validator"
+  n_splits: 3
+  best_metric: "f1"
+
+serving:
+  save_dir: "models/serving"
