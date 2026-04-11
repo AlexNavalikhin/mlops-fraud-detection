@@ -32,7 +32,7 @@ preprocessor:
 
 trainer:
   save_dir: "models/trainer"
-  batch_size: 20
+  rf_new_trees: 20
   rf_n_estimators: 100
   rf_max_depth: 10
   mlp_layers: [64, 32]

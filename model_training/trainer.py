@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ModelTrainer:
     def __init__(self, config):
         self.save_dir = config["trainer"]["save_dir"]
-        self.batch_size = config["trainer"]["batch_size"]
+        self.rf_new_trees = config["trainer"]["rf_new_trees"]
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.rf = RandomForestClassifier(
@@ -57,7 +57,7 @@ class ModelTrainer:
 
     def _incremental_fit(self, X, y):
         logger.info(f"Дообучение на батче {self.batch_count}, строк: {len(X)}")
-        self.rf.n_estimators += self.batch_size
+        self.rf.n_estimators += self.rf_new_trees
         self.rf.fit(X, y)
         logger.info(f"RandomForest: теперь {self.rf.n_estimators} деревьев")
         self.mlp.partial_fit(X, y)

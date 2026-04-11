@@ -16,6 +16,9 @@
 # Обучить на одном батче
 python run.py -mode "update"
 
+# Обучить на 3 батчах
+python run.py -mode "update" -batches 3
+
 # Обучить на всех батчах сразу
 python run.py -mode "update" -all
 

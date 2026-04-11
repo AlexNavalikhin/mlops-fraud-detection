@@ -27,7 +27,7 @@ class DataCollector:
     def load_source(self):
         try:
             df = pd.read_csv(self.source_path)
-            df[self.date_col] = pd.to_datetime(df[self.date_col], dayfirst=True)
+            df[self.date_col] = pd.to_datetime(df[self.date_col], format='mixed')
             df = df.sort_values(self.date_col).reset_index(drop=True)
             logging.info(f"Датасет загружен: {df.shape}")
             return df

@@ -68,31 +68,32 @@ def _process_batch(p, batch, batch_index):
     logger.info(f"Батч {batch_index} успешно обработан")
     print(f"Батч {batch_index} обработан")
 
-def run_update(config, process_all=False):
+def run_update(config, process_all=False, n_batches=None):
     try:
         p = build_pipeline(config)
-        if process_all:
-            count = 0
-            while True:
-                batch = p["collector"].stream_next_batch()
-                if batch is None:
-                    print(f"Новых батчей нет. Всего обработано: {count}")
-                    break
-                batch_index = p["collector"].storage.get_next_batch_index() - 1
-                _process_batch(p, batch, batch_index)
-                count += 1
-        else:
+        count = 0
+
+        while True:
+            if n_batches is not None and count >= n_batches:
+                break
+
             batch = p["collector"].stream_next_batch()
             if batch is None:
-                print("Новых батчей нет")
-                return True
+                break
+
             batch_index = p["collector"].storage.get_next_batch_index() - 1
             _process_batch(p, batch, batch_index)
+            count += 1
+
+            if not process_all and n_batches is None:
+                break
 
         return True
 
     except Exception as e:
         logger.error(f"Ошибка в update: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -187,12 +188,17 @@ def main():
     parser.add_argument("-file", default=None, help="Путь к файлу для inference")
     parser.add_argument("-config", default="config.yaml", help="Путь к конфигу")
     parser.add_argument("-all", action="store_true", help="Обработать все батчи")
+    parser.add_argument("-batches", type=int, default=None, help="Количество батчей для обработки")
     args = parser.parse_args()
 
     config = load_config(args.config)
 
     if args.mode == "update":
-        result = run_update(config, process_all=args.all)
+        result = run_update(
+            config,
+            process_all=args.all,
+            n_batches=args.batches
+        )
         print(result)
 
     elif args.mode == "inference":

@@ -27,7 +27,7 @@ def make_trainer_config(tmp_dir):
     return {
         "trainer": {
             "save_dir": os.path.join(tmp_dir, "models/trainer"),
-            "batch_size": 10,
+            "rf_new_trees": 10,
             "rf_n_estimators": 20,
             "rf_max_depth": 5,
             "mlp_layers": (16, 8),
