@@ -113,7 +113,7 @@ class ModelValidator:
     def load_best_model(self):
         path = os.path.join(self.save_dir, "best_model.pkl")
         if not os.path.exists(path):
-            raise FileNotFoundError("Лучшая модель не найдена")
+            raise FileNotFoundError(f"Лучшая модель не найдена {path}")
         with open(path, "rb") as f:
             data = pickle.load(f)
         logger.info(f"Загружена лучшая модель: {data['meta']}")

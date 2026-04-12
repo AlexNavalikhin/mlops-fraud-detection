@@ -37,6 +37,8 @@ def make_configs(tmp_dir):
             "save_dir": os.path.join(tmp_dir, "models/validator"),
             "n_splits": 3,
             "best_metric": "f1",
+            "min_batches": 0,
+            "val_size": 0.2,
         },
         "serving": {
             "save_dir": os.path.join(tmp_dir, "models/serving"),
