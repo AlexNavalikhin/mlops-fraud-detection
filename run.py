@@ -61,9 +61,10 @@ def _process_batch(p, batch, batch_index):
         X, y = p["preprocessor"].transform(clean_batch)
 
     p["trainer"].fit(X, y)
-    p["validator"].evaluate(p["trainer"], X, y, batch_index)
-    p["serving"].load_model(p["validator"])
-    p["serving"].save_production_model()
+    report = p["validator"].evaluate(p["trainer"], X, y, batch_index)
+    if report["can_use_model"]:
+        p["serving"].load_model(p["validator"])
+        p["serving"].save_production_model()
 
     logger.info(f"Батч {batch_index} успешно обработан")
     print(f"Батч {batch_index} обработан")
@@ -99,13 +100,24 @@ def run_update(config, process_all=False, n_batches=None):
 
 def run_inference(config, file_path):
     try:
+        import json
+
         df = pd.read_csv(file_path)
 
         preprocessor = DataPreprocessor.load(config["preprocessor"]["save_dir"])
         X, _ = preprocessor.transform(df)
 
+        serving = ModelServing(config)
         model, meta = ModelServing.load_production_model(config["serving"]["save_dir"])
-        preds = model.predict(X)
+        serving.model = model
+        serving.meta = meta
+
+        perf_path = os.path.join(config["serving"]["save_dir"], "performance_log.json")
+        if os.path.exists(perf_path):
+            with open(perf_path) as f:
+                serving.perf_log = json.load(f)
+
+        preds = serving.predict(X)   # ← теперь замеряет и сохраняет
 
         df["predict"] = preds
         out_path = os.path.join(config["serving"]["save_dir"], "inference_result.csv")
@@ -122,6 +134,8 @@ def run_inference(config, file_path):
 
 def run_summary(config):
     try:
+        import json
+
         report = {}
 
         quality = DataQuality(config)
@@ -139,7 +153,6 @@ def run_summary(config):
         serving = ModelServing(config)
         perf_path = os.path.join(config["serving"]["save_dir"], "performance_log.json")
         if os.path.exists(perf_path):
-            import json
             with open(perf_path) as f:
                 serving.perf_log = json.load(f)
             report["performance"] = serving.get_performance_summary()

@@ -2,7 +2,7 @@ data:
   source_path: "data/raw_source/bank_transactions.csv"
   raw_dir: "data/raw"
   date_column: "Transaction_Date"
-  batch_size: 1000
+  batch_size: 2000
   missing_threshold: 0.30
 
 quality:
@@ -41,6 +41,8 @@ validator:
   save_dir: "models/validator"
   n_splits: 3
   best_metric: "f1"
+  min_batches: 5
+  val_size: 0.2
 
 serving:
   save_dir: "models/serving"

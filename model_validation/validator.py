@@ -14,18 +14,23 @@ class ModelValidator:
     def __init__(self, config):
         self.save_dir = config["validator"]["save_dir"]
         self.n_splits = config["validator"]["n_splits"]
-        self.metric   = config["validator"]["best_metric"]
+        self.metric = config["validator"]["best_metric"]
+        self.min_batches = config["validator"].get("min_batches", 5)
+        self.val_size = config["validator"].get("val_size", 0.2)
         os.makedirs(self.save_dir, exist_ok=True)
-
-        self.history  = []
-        self.best     = {"score": 0.0, "batch_index": None, "model": None}
+        self.history = []
+        self.best = {"score": 0.0, "batch_index": None, "model": None}
 
     def evaluate(self, trainer, X, y, batch_index):
-        report = {"batch_index": batch_index, "models": {}}
+        report = {"batch_index": batch_index, "models": {}, "can_use_model": False}
+
+        split = int(len(X) * (1 - self.val_size))
+        X_val = X.iloc[split:]
+        y_val = y[split:]
 
         for model_name in ["rf", "mlp"]:
             try:
-                metrics = self._compute_metrics(trainer, X, y, model_name)
+                metrics = self._compute_metrics(trainer, X_val, y_val, model_name)
                 report["models"][model_name] = metrics
                 logger.info(
                     f"Батч {batch_index} [{model_name}] "
@@ -35,7 +40,13 @@ class ModelValidator:
             except Exception as e:
                 logger.warning(f"Ошибка оценки {model_name}: {e}")
 
-        self._update_best(trainer, report, batch_index)
+        if batch_index >= self.min_batches:
+            self._update_best(trainer, report, batch_index)
+            report["can_use_model"] = True
+        else:
+            logger.info(f"Батч {batch_index}: пропускаем выбор лучшей модели "
+                        f"(min_batches={self.min_batches})")
+
         self._save_report(report, batch_index)
         self.history.append(report)
         return report
@@ -72,7 +83,7 @@ class ModelValidator:
     def _update_best(self, trainer, report, batch_index):
         for model_name, metrics in report["models"].items():
             score = metrics.get(self.metric, 0.0)
-            if score > self.best["score"]:
+            if score >= self.best["score"]:
                 self.best = {
                     "score":       score,
                     "batch_index": batch_index,
